@@ -1,1 +1,4 @@
 .*.filtered
+output/
+input/
+meta/

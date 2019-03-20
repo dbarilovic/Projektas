@@ -1,0 +1,126 @@
+---
+title: "Citozino modifikacijos atspingi cirkadinį ritmą, kuris yra susijęs su epigenetine įvairove ir senėjimu"
+author: "Dominika Barilovič, Ernesta Petraitytė"
+date: "19 March 2019"
+output: html_document
+---
+
+Cirkadinis ritmas yra vienas iš seniausių evoliucinių prisitaikymų prie dienos ir nakties ciklų. Jis reguliuoja platų biologinių reiškinių spektrą - nuo temperatūros priklausomų, prokariotų biocheminių reakcijų greičių svyravimų, iki miego ir pabudimo ciklų. Cirkadinio ritmo sutrikimai yra susiję su žmonių sergamumu, įskaitant vėžį, nuotaikos pokyčius ir neurodegeneracines ligas. Be to, daugybė tyrimų parodė ryšį tarp cirkadinio sutrikimo ir senėjimo. Pavyzdžiui, vyresniems graužikams cirkadinis reguliavimas tampa silpnesnis, o pelės, kurioms trūksta pagrindinių cirkadianinių genų, gyvena trumpiau. 
+
+Pezentacija apie mūsų duomenis
+
+1.	Mėginių skaičius duomenų bazėje: 1057 
+
+2.	Duota informacija apie mėginius(mėginiuose): chrosomo numeris, genomo koordinatė, (sekvenavimo) kryptis, nemetilinimo skaičius, metilinimo skaičius, CHH / CHG / CG kontekstas citozine (tačiau mes atsifiltavome duomenis, kur yra tik CG), tiksli ankstesnio konteksto seka (exact sequence of the previous context). (https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM2222702) .
+
+3.	 Naudotas eksperimento dizainas: Pelės buvo laikomos atskirai, jos buvo girdytos ir maitinamos, narve su 17cm skersmens ratuku. Gyvūnai buvo tiriami 24 valandas: 12 valandas šviesoje  ir 12 valandas tamsoje. 
+Pelės,9, 15 arba 25 mėnesių amžiaus, buvo eutanizuotos, kad būtų galima paimti audinių iš gimdos kaklelio. Surinkti audiniai buvo užšaldyti skystame azoto sluoksnyje ir laikomi -80 ° C temperatūroje prieš tyrimą. Sekvenavimo eksperimentas buvo atliktas trimis egzemplioriais, panaudojant spynos bisulfito / oksibisulfito seką
+
+4.	Signalo gavimo platforma ir metodas: GPL17021 Illumina HiSeq 2500 (Mus musculus)
+
+5.	Pagrindiniai darbo rezultatai: Cirkadinis ritmas yra vienas iš seniausių evoliucinių prisitaikymų prie dienos ir nakties ciklų. Svarbu pažymėti, jog citozinai, kurie turi cirkadinį epigeninį virpesį yra panašūs į citozinus, kurie modifikacijos metu (laikui bėgant) patiria amžiaus pokyčių. Tyrimo išvados parodė, jog evoliuciškai naudingi procesai, tokie kaip cirkadinis ritmas, taip pat prisideda prie organizmo senėjimo.
+
+6.	 Idėjos, kas galėjo būti ištirta dar: Galima tirti nuo kurio amžiaus cirkadinis ritmas organizme stiprėja ir silpnėja. Kaip veikia cirkadinis ritmas sergant tam tikromis ligomis. 
+
+Problemos
+Sumažinus failus neatitiko chromosomų vietos, todėl mes duomenis sutraukėme;
+Negalėjome pasiimti visų 1057 failų, kadangi neužteko kompiuterių resusų;
+
+Zeitgeber laikas. 
+24 valandų ciklas, kurį sudaro 12 valandų šviesos ir 12 valandų tamsos. 
+```{r , echo=FALSE,message=FALSE }
+library(gsubfn)
+filelist = list.files(path="../input/") # failu pavadinimu listas
+ZTinfo <- strapplyc(filelist, "M_(.*)-", simplify = TRUE) #reguliarios išraiškos dėka išskiriu iš failų vardų Zeitgebeio laiką. 
+head(ZTinfo)
+```
+
+```{r echo=FALSE, message=FALSE}
+setwd("../input/")
+tableOne <- as.matrix(read.delim("GSM2223209_P3_B11_JV_L_9M_ZT62-27832827.bismark_pe.probe_matches.CX_report.txt", header=FALSE, as.is=TRUE))
+
+#Paemem buten tokias chromosomas, nes buvo tirtos tik sios chromosomos. Suzinojome is pasileide scripta chromomes ir padave visus meginiu failus. Tuomet ivykdeme #komanda "cat chromosomes.txt | sort -u" komandineje eiluteje.
+chr1 <- "chr1"
+chr11 <- "chr11"
+chr12 <- "chr12"
+chr15 <- "chr15"
+chr2 <- "chr2"
+chr6 <- "chr6"
+chr7 <-  "chr7"
+
+#extra info - nurodome chromosomas, kurios buvo naudojamos tyrimams
+chr <- as.matrix(c(chr1, chr11, chr12, chr15, chr2, chr6, chr7))
+extraInfo <- chr
+
+# filelist - gauname failu pavadinimus. Filtered failus gauname is programos filter.sh paduodadant visus meginiu failus 
+filelist = list.files(path="../input/", pattern = ".*.filtered") # failu pavadinimu listas
+
+setwd("../input/")
+tableOne <- as.matrix(read.delim(filelist[1], header=FALSE, as.is=TRUE))
+
+count <- 0
+
+MetilMatrix = matrix(nrow = 7, ncol = length(filelist))
+extraInfoTable= matrix(extraInfo)
+
+setwd("../input/")
+for (name in filelist) {
+#metilinimo kieki chromosomose visu pirma inicijuojame nuliu.  
+  chr1Suma=0
+  chr11Suma=0
+  chr12Suma=0
+  chr15Suma=0
+  chr2Suma=0
+  chr6Suma=0
+  chr7Suma=0
+  
+  tableOne <- as.matrix(read.delim(name, header=FALSE, as.is=TRUE))
+  allMetil_Non <-tableOne[, c(4,5)]
+  nonMetilLines <- as.numeric(allMetil_Non[,1])
+  metilLines <-as.numeric(allMetil_Non[,2])
+#ieskome koks kiekis metilinimo buvo kiekvienoje is saraso esancioje chromosomoje (kiekvienam meginiui)  
+   for (i in 1:length(tableOne[,1])){
+      if(tableOne[i,1] == chr7){
+        chr7Suma=chr7Suma+metilLines[i]
+      }
+     else if(tableOne[i,1] == chr11){
+        chr11Suma=chr11Suma+metilLines[i]
+     }
+     else if(tableOne[i,1] == chr12){
+        chr12Suma=chr12Suma+metilLines[i]
+      }
+      else if(tableOne[i,1] == chr15){
+        chr15Suma=chr15Suma+metilLines[i]
+      }
+      else if(tableOne[i,1] == chr2){
+        chr2Suma=chr2Suma+metilLines[i]
+      }
+      else if(tableOne[i,1] == chr6){
+        chr6Suma=chr6Suma+metilLines[i]
+      }
+      else if(tableOne[i,1] == chr1){
+        chr1Suma=chr1Suma+metilLines[i]
+      }
+   }
+  allSum<-0
+  allSum <- sum(nonMetilLines, metilLines)
+  count <- count+1
+  MetilMatrix[1,count] <- chr1Suma/allSum
+  MetilMatrix[2,count] <- chr11Suma/allSum
+  MetilMatrix[3,count] <- chr12Suma/allSum
+  MetilMatrix[4,count] <- chr2Suma/allSum
+  MetilMatrix[5,count] <- chr6Suma/allSum
+  MetilMatrix[6,count] <- chr7Suma/allSum
+  
+}
+```
+
+Metilinimas kiekvienoje mėginių tiriamoje chromosomoje:
+```{r echo= FALSE, message=FALSE}
+head(MetilMatrix)
+```
+
+Papildoma informacija iš mėginių:
+```{r echo= FALSE, message=FALSE}
+head(extraInfoTable)
+```

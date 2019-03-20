@@ -1,0 +1,44 @@
+---
+title: "Citozino modifikacijos atspingi cirkadinį ritmą, kuris yra susijęs su epigenetine įvairove ir senėjimu"
+author: "Dominika Barilovič, Ernesta Petraitytė"
+date: "19 March 2019"
+output: html_document
+---
+
+Cirkadinis ritmas yra vienas iš seniausių evoliucinių prisitaikymų prie dienos ir nakties ciklų. Jis reguliuoja platų biologinių reiškinių spektrą - nuo temperatūros priklausomų prokariotų biocheminių reakcijų greičių svyravimų iki miego ir pabudimo ciklų ir aukštesnio laipsnio elgesio organizmuose. Cirkadinio ritmo sutrikimai buvo susiję su žmonių sergamumu, įskaitant vėžį, nuotaikos pokyčius ir neurodegeneracines ligas. Be to, daugybė tyrimų parodė ryšį tarp cirkadinio sutrikimo ir senėjimo. Pavyzdžiui, vyresniems graužikams cirkadinis reguliavimas tampa silpnesnis, o pelės, kurioms trūksta pagrindinių cirkadianinių genų, gyvena trumpiau. 
+
+Pezentacija apie mūsų duomenis
+
+1.	Mėginių skaičius duomenų bazėje: 1057 
+
+2.	Duota informacija apie mėginius(mėginiuose): chrosomo numeris, genomo koordinatė, (sekvenavimo) kryptis, nemetilinimo skaičius, metilinimo skaičius, CHH / CHG / CG kontekstas citozine, tiksli ankstesnio konteksto seka. (https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM2222702) .
+
+3.	 Naudotas eksperimento dizainas: Pelės buvo laikomos atskirai, su vandeniu bei maistu, narve su 17cm skersmens važiuokle. Gyvūnai buvo tiriami 24 valandas, 12 valandas šviesoje  ir 12 valandas tamsoje. 
+Pelės buvo eutanizuotos dėl audinių surinkimo 9, 15 arba 25 mėnesių amžiaus gimdos kaklelio dislokacijos metu. Surinkti audiniai buvo užšaldyti skystame azoto sluoksnyje ir laikomi -80 ° C temperatūroje prieš perdirbimą. Sekvenavimo eksperimentas buvo atliktas techniniais trimis egzemplioriais, panaudojant spynos bisulfito / oksibisulfito seką
+
+4.	Signalo gavimo platforma ir metodas: GPL17021 Illumina HiSeq 2500 (Mus musculus)
+
+5.	Pagrindiniai darbo rezultatai: Cirkadinis ritmas yra vienas iš seniausių evoliucinių prisitaikymų prie dienos ir nakties ciklų. Svarbu pažymėti, jog citozinai, kurie turi cirkadinį epigeninį virpesį yra panašūs į citozinus, kurie modifikacijos metu (laikui bėgant) patiria amžiaus pokyčių. Tyrimo išvados parodė, jog evoliuciškai naudingi procesai, tokie kaip cirkadinis ritmas, taip pat prisideda prie organizmo gedimo/senėjimo.
+
+6.	 Idėjos, kas galėjo būti ištirta dar: Galima tirti nuo kurio amžiaus cirkadinis ritmas organizme stiprėja ir silpnėja. Kaip veikia cirkadinis ritmas sergant tam tikromis ligomis. 
+
+Problemos
+Sumažinus failus neatitiko chromosomų vietos. 
+
+
+```{r init, include=FALSE, echo=FALSE}
+
+knitr::opts_chunk$set(include=TRUE, echo=TRUE)
+
+```
+
+Zeitgeber laikas. 
+24 valandų ciklas, kurį sudaro 12 valandų šviesos ir 12 valandų tamsos. 
+```{r , echo=FALSE,message=FALSE }
+library(gsubfn)
+filelist = list.files(path="D:/0314/Data") # failu pavadinimu listas
+ZTinfo <- strapplyc(filelist, "M_(.*)-", simplify = TRUE) #reguliarios išraiškos dėka išskiriu iš failų vardų Zeitgebeio laiką. 
+ZTmatrix <- data.matrix(ZTinfo)
+head(ZTmatrix)
+```
+
