@@ -1,5 +1,5 @@
 ---
-title: "Citozino modifikacijos atspingi cirkadinį ritmą, kuris yra susijęs su epigenetine įvairove ir senėjimu"
+title: "Citozino modifikacijos atspindi cirkadinį ritmą, kuris yra susijęs su epigenetine įvairove ir senėjimu"
 author: "Dominika Barilovič, Ernesta Petraitytė"
 date: "19 March 2019"
 output: html_document
@@ -37,82 +37,31 @@ head(ZTinfo)
 
 ```{r echo=FALSE, message=FALSE}
 setwd("../input/")
-tableOne <- as.matrix(read.delim("GSM2223209_P3_B11_JV_L_9M_ZT62-27832827.bismark_pe.probe_matches.CX_report.txt", header=FALSE, as.is=TRUE))
+tableOne <- (read.delim("GSM2222903_P1_C10_JV_L_25M_ZT32-30376429.bismark_pe.probe_matches.CX_report.txt.filtered.filtered", header=FALSE, as.is=TRUE))
 
-#Paemem buten tokias chromosomas, nes buvo tirtos tik sios chromosomos. Suzinojome is pasileide scripta chromomes ir padave visus meginiu failus. Tuomet ivykdeme #komanda "cat chromosomes.txt | sort -u" komandineje eiluteje.
-chr1 <- "chr1"
-chr11 <- "chr11"
-chr12 <- "chr12"
-chr15 <- "chr15"
-chr2 <- "chr2"
-chr6 <- "chr6"
-chr7 <-  "chr7"
-
-#extra info - nurodome chromosomas, kurios buvo naudojamos tyrimams
-chr <- as.matrix(c(chr1, chr11, chr12, chr15, chr2, chr6, chr7))
-extraInfo <- chr
-
-# filelist - gauname failu pavadinimus. Filtered failus gauname is programos filter.sh paduodadant visus meginiu failus 
-filelist = list.files(path="../input/", pattern = ".*.filtered") # failu pavadinimu listas
+filelist = list.files(path="../input/", pattern = ".*.filtered.filtered") # failu pavadinimu listas
 
 setwd("../input/")
-tableOne <- as.matrix(read.delim(filelist[1], header=FALSE, as.is=TRUE))
+tmpFile <-read.delim(filelist[1], header=FALSE, as.is=TRUE)
+matchedPattern <-tmpFile[, c(1,2,3)]
 
-count <- 0
-
-MetilMatrix = matrix(nrow = 7, ncol = length(filelist))
-extraInfoTable= matrix(extraInfo)
-
+MetilMatrix = matrix(nrow = length(tmpFile[,1]) , ncol = length(filelist))
 setwd("../input/")
 for (name in filelist) {
 #metilinimo kieki chromosomose visu pirma inicijuojame nuliu.  
-  chr1Suma=0
-  chr11Suma=0
-  chr12Suma=0
-  chr15Suma=0
-  chr2Suma=0
-  chr6Suma=0
-  chr7Suma=0
-  
-  tableOne <- as.matrix(read.delim(name, header=FALSE, as.is=TRUE))
-  allMetil_Non <-tableOne[, c(4,5)]
-  nonMetilLines <- as.numeric(allMetil_Non[,1])
-  metilLines <-as.numeric(allMetil_Non[,2])
+  tmp <- read.delim(name, header=FALSE, as.is=TRUE)
+  col3 <-tmpFile[, c(1,2,3)]
+  matchedPattern <-unique(rbind(col3, matched))
+  #nonMetilLines <- as.numeric(allMetil_Non[,1])
+  #metilLines <-(allMetil_Non[,2])
 #ieskome koks kiekis metilinimo buvo kiekvienoje is saraso esancioje chromosomoje (kiekvienam meginiui)  
-   for (i in 1:length(tableOne[,1])){
-      if(tableOne[i,1] == chr7){
-        chr7Suma=chr7Suma+metilLines[i]
-      }
-     else if(tableOne[i,1] == chr11){
-        chr11Suma=chr11Suma+metilLines[i]
-     }
-     else if(tableOne[i,1] == chr12){
-        chr12Suma=chr12Suma+metilLines[i]
-      }
-      else if(tableOne[i,1] == chr15){
-        chr15Suma=chr15Suma+metilLines[i]
-      }
-      else if(tableOne[i,1] == chr2){
-        chr2Suma=chr2Suma+metilLines[i]
-      }
-      else if(tableOne[i,1] == chr6){
-        chr6Suma=chr6Suma+metilLines[i]
-      }
-      else if(tableOne[i,1] == chr1){
-        chr1Suma=chr1Suma+metilLines[i]
-      }
-   }
-  allSum<-0
-  allSum <- sum(nonMetilLines, metilLines)
-  count <- count+1
-  MetilMatrix[1,count] <- chr1Suma/allSum
-  MetilMatrix[2,count] <- chr11Suma/allSum
-  MetilMatrix[3,count] <- chr12Suma/allSum
-  MetilMatrix[4,count] <- chr2Suma/allSum
-  MetilMatrix[5,count] <- chr6Suma/allSum
-  MetilMatrix[6,count] <- chr7Suma/allSum
-  
+  #count <- count+1
+  #MetilMatrix[,count] <- metilLines
 }
+#saveRDS(matchedPattern, "pattern")
+apply(matchedPattern, 1, paste, collapse = NULL)
+rows <- match(matchedPattern, tmp)
+#saveRDS(matchedPattern, "pattern")
 ```
 
 Metilinimas kiekvienoje mėginių tiriamoje chromosomoje:
@@ -122,5 +71,4 @@ head(MetilMatrix)
 
 Papildoma informacija iš mėginių:
 ```{r echo= FALSE, message=FALSE}
-head(extraInfoTable)
 ```

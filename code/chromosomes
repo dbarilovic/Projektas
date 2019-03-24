@@ -1,8 +1,0 @@
-#!/bin/bash
-args=("$@")
-file="chromosomes.txt"
-for fileName in "${args[@]}";
-do
-cat $fileName | awk '{ print $1 }' >> $file
-done
-
