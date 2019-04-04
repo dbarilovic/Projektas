@@ -18,5 +18,5 @@ for (name in filelist) {
   matchedPattern <-unique(rbind(col3, matchedPattern))
 }
 setwd("../output")
-write.table(matchedPattern,"pattern.txt",sep="\t",row.names=FALSE, col.names=FALSE, quote=FALSE)
+write.table(matchedPattern,"pattern.txt",sep=" ",row.names=FALSE, col.names=FALSE, quote=FALSE)
 
